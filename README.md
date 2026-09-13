@@ -1,7 +1,7 @@
 # 🛠️ As An Engineer (`as-an-engineer`)
 
 > **Stop AI agents from babysitting you.**  
-> A 30-line heuristic skill to cure LLM "Babysitter Syndrome" and treat you like a senior engineer with a warm terminal.
+> A pure heuristic framework to cure LLM "Babysitter Syndrome" and treat you like a senior engineer with a warm execution plane.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Awesome](https://awesome.re/badge.svg)](https://github.com/mayooot/as-an-engineer)
@@ -13,12 +13,13 @@
 
 ### The Problem: LLM "Babysitter Syndrome"
 
-Modern AI coding agents are heavily RLHF-aligned to hand-hold non-technical users. When you ask them to build or debug something:
-- ❌ **They over-compute**: You ask for video subtitles—they spin up Whisper STT and burn subtitles into the MP4 (wasting 20 mins & 100k tokens), completely ignoring that the platform or container already provides clean `.vtt` tracks.
-- ❌ **They babysit execution**: You ask for database progress—they attempt to probe your K8s namespaces, SSH across jump hosts, and time out inside a cold sandbox, instead of handing you a 2-second SQL query to paste into your already-connected shell.
-- ❌ **They weld things shut**: They hardcode magic timeouts and merge views with data, destroying intermediate artifacts.
+Modern AI coding agents are RLHF-aligned to hand-hold non-technical users, leading to systematic engineering anti-patterns:
+- ❌ **Derivation over extraction**: Defaulting to compute-heavy models and generative loops to infer information that the upstream source, container format, or protocol metadata already provides.
+- ❌ **Cold-sandbox babysitting**: Attempting to execute and debug long-running, credential-heavy tasks inside a restricted agent environment, instead of handing runnable payloads to the user's warm execution plane.
+- ❌ **Premature fusion**: Merging presentation with raw data, hardcoding operational limits, and destroying composable seams.
+- ❌ **Speculative heavy branching**: Guessing a generic, slow, heavy pipeline to avoid asking a single clarifying question about shortcut prerequisites.
 
-**You don't need a babysitter. You just need a high-leverage code compiler.**
+**You don't need a babysitter. You need a high-leverage compiler of solutions.**
 
 ---
 
@@ -27,30 +28,33 @@ Modern AI coding agents are heavily RLHF-aligned to hand-hold non-technical user
 ```
                       [ User Task Received ]
                                  │
-                 1. Upstream has metadata?
-                   ├── YES ──► Extract immediately ($O(1)$)
+                 1. Upstream carries the signal?
+                   ├── YES ──► Extract directly ($O(1)$)
                    └── NO  ──┐
                              ▼
-                 2. Execution is expensive/cold?
-                   ├── YES ──► Deliver executable payload (SQL/Shell)
+                 2. Execution is high-friction/cold?
+                   ├── YES ──► Deliver executable payload
                    └── NO  ──┐
                              ▼
-                 3. Destructive / Hard-baking?
-                   ├── YES ──► Decouple into sidecars & flags
+                 3. Destructive transform / Hard-baking?
+                   ├── YES ──► Decouple seams & externalize dials
                    └── NO  ──┐
                              ▼
-                 4. Asymmetric branch costs (5s vs 20m)?
-                   └── YES ──► Stop. Probe in 1 line.
+                 4. Asymmetric branch costs (low vs high)?
+                   └── YES ──► Halt. Probe in 1 line.
 ```
 
 1. **Upstream First (Extract, Don't Derive)**  
-   If container metadata, protocols, or HTTP headers have it, derivation via STT, OCR, DOM rendering, or blind embeddings is forbidden.
-2. **Ship Payloads, Don't Babysit (Hot Shell > Cold Sandbox)**  
-   Your shell has credentials and speed; the agent sandbox is cold. Deliver immediately executable vectors (precise SQL, 1-liner shell, single-file scripts).
-3. **Keep Knobs Tunable (Decouple & Sidecar)**  
-   Never hard-bake views into data. Output sidecars (`.srt`, `.json`) and streams. Expose thresholds and concurrency as CLI flags/env vars.
+   Never compute what the source format or protocol already carries. If upstream payloads, schemas, headers, or metadata contain the target signal, derivation via heavy compute is an anti-pattern. If it can be extracted, derivation is forbidden.
+
+2. **Ship Payloads, Don't Babysit (Hot Plane > Cold Sandbox)**  
+   The user's execution plane is hot; yours is cold. Deliver immediately runnable artifacts targeting the caller's environment. Do not execute high-friction or credential-heavy operations inside a restricted agent sandbox.
+
+3. **Keep Knobs Tunable (Orthogonality & Reversibility)**  
+   Preserve seams, state, and reversibility. Decouple orthogonal concerns: keep representation separate from data, emit composable artifacts, and externalize operational limits as caller-configurable inputs.
+
 4. **1-Line Probe (Asymmetric Cost Check)**  
-   If a choice is between a 5-second privileged shortcut and a 20-minute generic pipeline, ask **one line**. Never guess heavy to avoid asking.
+   When candidate paths diverge in cost by an order of magnitude, state the shortcut's prerequisite and verify in a single line. Never guess heavy to avoid asking.
 
 ---
 
@@ -86,17 +90,18 @@ curl -fsSL https://raw.githubusercontent.com/mayooot/as-an-engineer/main/rules/A
 
 ### 痛点：AI 的“保姆综合征”
 
-主流 Coding Agent 在对齐训练时默认把所有用户当成初学者：
-- **无脑上重模型**：要视频字幕，它启动 Whisper 耗时 20 分钟转录并烧进像素，却无视上游本就有现成的 `.vtt` 轨道；
-- **死守冷沙箱代跑**：要查海量数据进度，它在受限沙箱里跨网络翻 Pod、探 SSH，卡死超时，也不肯直接给你一条 2 秒就能回车跑完的 SQL；
-- **不可逆焊死**：把配置写死、把表现层与数据层物理烧录，毁掉中间状态。
+主流 Coding Agent 在对齐训练时默认把用户预设为非技术初学者，从而引发系统性反模式：
+- **重推导轻提取**：习惯用重计算与生成模型去推导上游协议、容器元数据本就携带的结构化信息；
+- **冷沙箱代跑**：在受限沙箱中试图跨越网络与凭证障碍代跑长任务，而不是向用户的热执行环境交付可运行制品；
+- **过早熔断解耦**：将表现层与数据层物理焊死，将运行参数硬编码，破坏了系统的可逆性与管道组合能力；
+- **盲目猜重方案**：为避免提问而直接选择耗时极长、覆盖面最广的重型管线。
 
 ### 四大启发式门禁
 
-1. **源头优先**：能提取的，绝不推导。严禁使用重算力去反推协议和容器本身就携带的结构化信息。
-2. **交付向量，别代跑腿**：用户的终端是热的，沙箱是冷的。交付立即可跑的制品，不要在沙箱里当低效保姆。
-3. **保留接缝，禁止焊死**：正交解耦，产出旁挂文件，旋钮外挂为 flags / 环境变量。
-4. **单行探针，不猜重方案**：当分叉意味着“5秒特权解”与“20分钟通用解”时，单行询问，绝不自作主张选重方案。
+1. **源头优先 (Extract, Don't Derive)**：能提取的，绝不推导。凡协议、格式规范、元数据流中已有的信号，严禁使用重计算逆向重建。
+2. **交付向量，别代跑腿 (Payload, Not Babysitting)**：用户的执行平面是热的，沙箱是冷的。交付确定性可运行制品，不在受限环境内做高摩擦代跑。
+3. **保留接缝，禁止焊死 (Orthogonality & Reversibility)**：关注点正交分离。数据与呈现解耦，产生可组合产物；参数与阈值外挂为可配置输入。
+4. **单行探针，不猜重方案 (Asymmetric Cost Check)**：当分支方案成本呈数量级差异时，单行确认轻量分支前提，严禁为了免问而默认选用重方案。
 
 ---
 
